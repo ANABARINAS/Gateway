@@ -1,0 +1,67 @@
+#logoface{
+	height: 50px;
+}
+#logotwitter{
+	height: 50px;
+}
+#logoinsta{
+	height: 50px;
+}
+#carrusel{
+	height: 600px;
+	padding: 20px;
+	border: 20px;
+}
+#vakmonproducto{
+	height: 250px;
+}
+#vakmoninicio{
+	height: 350px;
+}
+#logowhats{
+	height: 100px;
+}
+#logoalisado{
+	height: 450px;
+}
+
+body{
+	background: rgb(0,0,0)
+}
+ footer{
+ 	background-image: url('imagenes/fondovakmon4.jpeg');
+ }
+
+.naranja{
+ 	color: rgb(211, 84, 0);
+ }
+.negro{
+	background: rgb (0, 0, 0);
+}
+
+.textoblanco{
+	color: rgb(255, 255, 255)
+}
+
+h1 {
+    /* el tamaño por defecto es 14px */
+    font-size: 70px;
+}
+
+h2{
+	font-size: 40px;
+}
+@font-face{
+	font-family: vogue;
+	src: url(./fuentes/Vogue.ttf);
+}
+h1{
+	font-family: vogue;
+}
+@font-face {
+	font-family: dreams;
+	src: url(./fuentes/dream\ orphans.otf);
+}
+h2{
+	font-family: dreams;
+}

@@ -35,6 +35,43 @@ def create_token ():
     else:
         return jsonify({"msg":"Usuario o contrasena incorrecto"}),401    
 
+@app.before_request
+def before_request_callback():
+    endPoint=limpiarURL(request.path)
+    excludedRoutes=["/login"]
+    if excludedRoutes.__contains__(request.path):
+        pass
+    elif verify_jwt_in_request():
+        usuario = get_jwt_identity()
+        if usuario["rol"]is not None:
+            tienePersmiso=validarPermiso(endPoint,request.method,usuario["rol"]["_id"])
+            if not tienePersmiso:
+                return jsonify({"message": "Permission denied"}), 401
+        else:
+            return jsonify({"message": "Permission denied"}), 401
+def limpiarURL(url):
+    partes = url.split("/")
+    for laParte in partes:
+        if re.search('\\d', laParte):
+            url = url.replace(laParte, "?")
+    return url
+def validarPermiso(endPoint,metodo,idRol):
+    url=dataConfig["url-backend-security"]+"/permisos-roles/validar-permiso/rol/"+str(idRol)
+    tienePermiso=False
+    headers = {"Content-Type": "application/json; charset=utf-8"}
+    body={
+        "url":endPoint,
+        "metodo":metodo
+    }
+    response = requests.get(url,json=body, headers=headers)
+    try:
+        data=response.json()
+        if("_id" in data):
+            tienePermiso=True
+    except:
+        pass
+    return tienePermiso
+
 
 @app.route("/",methods=['GET'])
 def test():
@@ -50,4 +87,62 @@ if __name__=='__main__':
     dataConfig = loadFileConfig()
     print("Server running : "+"http://"+dataConfig["url-backend"]+":" +
     str(dataConfig["port"]))
+    serve(app,host=dataConfig["url-backend"],port=dataConfig["port"])
+
+#redireccionamiento
+
+@app.route("/candidatos",methods=['GET'])
+def getCandidato():
+    headers = {"Content-Type": "application/json; charset=utf-8"}
+    url = dataConfig["url-backend-CICL4AG4"] + '/candidatos'
+    response = requests.get(url, headers=headers)
+    json = response.json()
+    return jsonify(json)
+
+@app.route("/candidatos",methods=['POST'])
+def crearCandidato():
+    data = request.get_json()
+    headers = {"Content-Type": "application/json; charset=utf-8"}
+    url = dataConfig["url-backend-CICLO4AG4"] + '/candidatos'
+    response = requests.post(url, headers=headers,json=data)
+    json = response.json()
+    return jsonify(json)
+
+@app.route("/candidatos/<string:id>",methods=['GET'])
+def getCandidato(id):
+    headers = {"Content-Type": "application/json; charset=utf-8"}
+    url = dataConfig["url-backend-CICLO4AG4"] + '/candidatos/'+id
+    response = requests.get(url, headers=headers)
+    json = response.json()
+    return jsonify(json)
+
+@app.route("/candidatos/<string:id>",methods=['PUT'])
+def modificarCandidato(id):
+    data = request.get_json()
+    headers = {"Content-Type": "application/json; charset=utf-8"}
+    url = dataConfig["url-backend-CICLO4AG4"] + '/candidatos/'+id
+    response = requests.put(url, headers=headers, json=data)
+    json = response.json()
+    return jsonify(json)
+@app.route("/candidatos/<string:id>",methods=['DELETE'])
+def eliminarCandidato(id):
+    headers = {"Content-Type": "application/json; charset=utf-8"}
+    url = dataConfig["url-backend-CICLO4AG4"] + '/candidatos/' + id
+    response = requests.delete(url, headers=headers)
+    json = response.json()
+    return jsonify(json)
+    
+@app.route("/",methods=['GET'])
+def test():
+    json = {}
+    json["message"]="Server running ..."
+    return jsonify(json)
+
+def loadFileConfig():
+    with open('config.json') as f:
+        data = json.load(f)
+    return data
+if __name__=='__main__':
+    dataConfig = loadFileConfig()
+    print("Server running : "+"http://"+dataConfig["url-backend"]+":" + str(dataConfig["port"]))
     serve(app,host=dataConfig["url-backend"],port=dataConfig["port"])
